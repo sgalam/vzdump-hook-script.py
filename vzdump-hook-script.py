@@ -17,23 +17,23 @@ import argparse
 import sys
 import os
 
-
 def main():
+
+    print "HOOK: %s" % ' '.join(sys.argv)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("phase", help="backup phase")
-    parser.add_argument("mode", help="backup mode")
-    parser.add_argument("vmid", help="backup vmid")
+    parser.add_argument("attributes", help="backup attributes mode and vmid", nargs='*')
 
     args = parser.parse_args()
 
     # example hook script for vzdump (--script option)
 
-    print "HOOK: %s" % ' '.join(sys.argv)
-
 
     if (args.phase == 'job-start' or
         args.phase == 'job-end'  or
         args.phase == 'job-abort'):
+
 
         dumpdir = os.environ["DUMPDIR"]
         storeid = os.environ["STOREID"]
@@ -46,6 +46,9 @@ def main():
     	 args.phase == 'log-end' or
     	 args.phase == 'pre-stop' or
     	 args.phase == 'pre-restart'):
+
+        vmid = args.attributes.pop()
+        mode = args.attributes.pop()
 
         vmtype =  os.environ["VMTYPE"] # openvz/qemu
         dumpdir = os.environ["DUMPDIR"]
@@ -60,13 +63,11 @@ def main():
 
         # example: copy resulting backup file to another host using scp
         if args.phase == 'backup-end':
-            print "backup end"
         	#system ("scp $tarfile backup-host:/backup-dir") == 0 or
         	#    die "copy tar file to backup-host failed";
             # example: copy resulting log file to another host using scp
             pass
         if args.phase == 'log-end':
-            print "log end"
         	#system ("scp $logfile backup-host:/backup-dir") == 0 or
         	#    die "copy log file to backup-host failed";
             pass
